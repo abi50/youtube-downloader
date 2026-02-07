@@ -1,35 +1,39 @@
 # YouTube Downloader 
 
-A simple Windows desktop tool for downloading videos or audio from YouTube.
+A simple Windows desktop application for downloading YouTube videos or audio.
 
-This project was created as a lightweight alternative to online YouTube downloader websites, which are often blocked, overloaded with ads, or unreliable.
+This project provides a lightweight GUI wrapper around `yt-dlp`.
 
 ---
 
-## ✨ Features
-- Download YouTube videos in maximum available quality
+## Features
+- Download videos in the best available quality
 - Download audio only (MP3)
-- Simple and clean GUI
-- Runs locally on your computer
+- Simple and minimal graphical interface
+- Runs locally on Windows
 
 ---
 
-## 📦 What this repository contains
-This repository includes **source code only**:
+## Repository Contents
+This repository contains **source code only**:
 
-- `youtube_downloader_gui.py` – the main Python GUI application
+- `youtube_downloader_gui.py` – main GUI application
 
-The compiled EXE file is provided separately via GitHub Releases.
-
----
-
-## ⚠️ Windows Security Notice
-Since the EXE file is not digitally signed, Windows may display a security warning when running it for the first time.
-
-The application was developed by me and contains **no malicious code**.  
-It runs locally and does not collect personal data.
+The compiled Windows executable (EXE) is distributed via **GitHub Releases**.
 
 ---
 
-## 👩‍💻 Author
-Developed by Abigail Berk © 2026
+## Requirements (for running from source)
+- Python 3.9+
+- `yt-dlp`
+- FFmpeg
+
+---
+
+## License
+This project is provided as-is for personal use.
+
+---
+
+## Author
+Abigail Berk
