@@ -34,19 +34,22 @@ def download_video():
     ydl_opts["ffmpeg_location"] = get_ffmpeg_path()
 
     if quality == "720p":
-        ydl_opts["format"] = "best[height<=720]"
+        ydl_opts["format"] = "bestvideo[height<=720]+bestaudio/best[height<=720]"
+        ydl_opts["merge_output_format"] = "mp4"
     elif quality == "480p":
-        ydl_opts["format"] = "best[height<=480]"
+        ydl_opts["format"] = "bestvideo[height<=480]+bestaudio/best[height<=480]"
+        ydl_opts["merge_output_format"] = "mp4"
     elif quality == "אודיו בלבד (mp3)":
         ydl_opts.update({
-            "format": "bestaudio",
+            "format": "bestaudio/best",
             "postprocessors": [{
                 "key": "FFmpegExtractAudio",
                 "preferredcodec": "mp3",
             }]
         })
     else:
-        ydl_opts["format"] = "best"
+        ydl_opts["format"] = "bestvideo+bestaudio/best"
+        ydl_opts["merge_output_format"] = "mp4"
 
     try:
         status_label.config(text="מוריד...")
