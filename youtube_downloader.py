@@ -5,16 +5,60 @@ from pathlib import Path
 from yt_dlp import YoutubeDL
 import sys
 import os
+import logging
 
 # ================== Logic ==================
 
+def get_app_dir():
+    if getattr(sys, "frozen", False):
+        return os.path.dirname(sys.executable)
+    else:
+        return os.path.dirname(os.path.abspath(__file__))
+
+LOG_PATH = os.path.join(get_app_dir(), "youtube_downloader.log")
+
+logging.basicConfig(
+    filename=LOG_PATH,
+    level=logging.DEBUG,
+    format="%(asctime)s [%(levelname)s] %(message)s",
+)
+_logger = logging.getLogger("yt_dlp")
+
+
+class YDLLogger:
+    """Routes yt-dlp's verbose/debug output into youtube_downloader.log."""
+
+    def debug(self, msg):
+        if msg.startswith("[debug] "):
+            _logger.debug(msg)
+        else:
+            self.info(msg)
+
+    def info(self, msg):
+        _logger.info(msg)
+
+    def warning(self, msg):
+        _logger.warning(msg)
+
+    def error(self, msg):
+        _logger.error(msg)
+
+
 def get_ffmpeg_path():
-    if getattr(sys, "frozen", False):        
+    if getattr(sys, "frozen", False):
         # running as EXE
         return os.path.join(sys._MEIPASS, "ffmpeg")
     else:
         # running as .py
         return "ffmpeg"
+
+def get_deno_path():
+    if getattr(sys, "frozen", False):
+        # running as EXE
+        return os.path.join(sys._MEIPASS, "deno", "deno.exe")
+    else:
+        # running as .py
+        return os.path.join(os.path.dirname(os.path.abspath(__file__)), "deno", "deno.exe")
 
 def download_video():
     url = url_entry.get().strip()
@@ -29,9 +73,14 @@ def download_video():
 
     ydl_opts = {
         "outtmpl": str(output_dir / '%(title)s.%(ext)s'),
-        "quiet": True
+        "quiet": True,
+        "verbose": True,
+        "logger": YDLLogger(),
+        "retries": 5,
+        "fragment_retries": 5,
     }
     ydl_opts["ffmpeg_location"] = get_ffmpeg_path()
+    ydl_opts["js_runtimes"] = {"deno": {"path": get_deno_path()}}
 
     if quality == "720p":
         ydl_opts["format"] = "bestvideo[height<=720]+bestaudio/best[height<=720]"
@@ -61,6 +110,7 @@ def download_video():
         status_label.config(text="ההורדה הושלמה ✅")
         messagebox.showinfo("סיום", "הקובץ ירד בהצלחה")
     except Exception as e:
+        _logger.exception("Download failed")
         status_label.config(text="שגיאה")
         messagebox.showerror("שגיאה", str(e))
 
