@@ -44,6 +44,23 @@ class YDLLogger:
         _logger.error(msg)
 
 
+_UNAVAILABLE_MARKERS = (
+    "video is unavailable",
+    "failed to extract any player response",
+    "private video",
+    "video has been removed",
+    "account associated with this video has been terminated",
+    "this video is no longer available",
+)
+
+
+def friendly_error_message(error):
+    text = str(error).lower()
+    if any(marker in text for marker in _UNAVAILABLE_MARKERS):
+        return "הסרטון אינו זמין (הוסר, הוגדר כפרטי, או אינו קיים יותר ביוטיוב)."
+    return str(error)
+
+
 def get_ffmpeg_path():
     if getattr(sys, "frozen", False):
         # running as EXE
@@ -112,7 +129,7 @@ def download_video():
     except Exception as e:
         _logger.exception("Download failed")
         status_label.config(text="שגיאה")
-        messagebox.showerror("שגיאה", str(e))
+        messagebox.showerror("שגיאה", friendly_error_message(e))
 
 
 def show_about():
