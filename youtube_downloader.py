@@ -136,7 +136,7 @@ def show_about():
     messagebox.showinfo(
         "About",
         "YouTube Downloader\n\n"
-        "Version: 1.0.1\n"
+        "Version: 1.0.2\n"
         "Developed by Abigail Berk\n\n"
         "Desktop application for personal use.\n"
         "No data collection."
