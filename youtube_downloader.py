@@ -2,10 +2,18 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 import subprocess
 from pathlib import Path
-from yt_dlp import YoutubeDL
 import sys
 import os
 import logging
+
+import truststore
+# Trust the OS certificate store (Windows) in addition to the bundled CA
+# bundle, the same way browsers do. This lets legitimate local software
+# (antivirus/firewall HTTPS scanning) that injects a trusted root
+# certificate work, without disabling certificate verification.
+truststore.inject_into_ssl()
+
+from yt_dlp import YoutubeDL
 
 # ================== Logic ==================
 
@@ -46,7 +54,6 @@ class YDLLogger:
 
 _UNAVAILABLE_MARKERS = (
     "video is unavailable",
-    "failed to extract any player response",
     "private video",
     "video has been removed",
     "account associated with this video has been terminated",
@@ -54,10 +61,38 @@ _UNAVAILABLE_MARKERS = (
 )
 
 
+_PLAYER_RESPONSE_MARKERS = (
+    "failed to extract any player response",
+)
+
+
+_CERT_ERROR_MARKERS = (
+    "certificate_verify_failed",
+    "certificate verify failed",
+)
+
+
+def is_certificate_error(error):
+    return any(marker in str(error).lower() for marker in _CERT_ERROR_MARKERS)
+
+
 def friendly_error_message(error):
     text = str(error).lower()
     if any(marker in text for marker in _UNAVAILABLE_MARKERS):
         return "הסרטון אינו זמין (הוסר, הוגדר כפרטי, או אינו קיים יותר ביוטיוב)."
+    if any(marker in text for marker in _PLAYER_RESPONSE_MARKERS):
+        return (
+            "יוטיוב חסם או דחה את הבקשה להורדת הסרטון הזה (לא בהכרח שהסרטון אינו זמין).\n"
+            "נסה שוב בעוד כמה דקות. אם זה ממשיך לקרות, ייתכן שהסרטון דורש התחברות "
+            "(מוגבל לגיל, לחברי ערוץ בלבד, או מוגבל לאזור מסוים)."
+        )
+    if is_certificate_error(error):
+        return (
+            "שגיאת אימות אבטחה (SSL) בחיבור לשרת של יוטיוב.\n"
+            "ייתכן שתוכנת אנטי-וירוס/חומת אש על המחשב חוסמת או בודקת את החיבור המוצפן, "
+            "או שיש בעיית רשת/תאריך שעה שגוי במחשב.\n"
+            "בדוק את הגדרות האנטי-וירוס/החומת אש ונסה שוב."
+        )
     return str(error)
 
 
@@ -123,7 +158,7 @@ def download_video():
 
         with YoutubeDL(ydl_opts) as ydl:
             ydl.download([url])
-            
+
         status_label.config(text="ההורדה הושלמה ✅")
         messagebox.showinfo("סיום", "הקובץ ירד בהצלחה")
     except Exception as e:
@@ -136,7 +171,7 @@ def show_about():
     messagebox.showinfo(
         "About",
         "YouTube Downloader\n\n"
-        "Version: 1.0.2\n"
+        "Version: 1.0.3\n"
         "Developed by Abigail Berk\n\n"
         "Desktop application for personal use.\n"
         "No data collection."

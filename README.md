@@ -17,15 +17,16 @@ This project provides a lightweight GUI wrapper around `yt-dlp`.
 ## Repository Contents
 This repository contains **source code only**:
 
-- `youtube_downloader_gui.py` – main GUI application
+- `youtube_downloader.py` – main GUI application
 
 The compiled Windows executable (EXE) is distributed via **GitHub Releases**.
 
 ---
 
 ## Requirements (for running from source)
-- Python 3.9+
+- Python 3.10+
 - `yt-dlp`
+- `truststore`
 - FFmpeg
 
 ---
